@@ -1,0 +1,33 @@
+---
+title: "Notation for FDA"
+output:
+  html_document: 
+    code_folding: hide
+    toc: true
+    toc_float: true
+---
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE
+)
+```
+
+This page contains a combination of traditional lecture materials (slides) and code demonstrating the relevant methods. The short course will proceed by working through both. We will use several recent packages in our examples; see the [About](./About.html) page for information about the package versions.
+
+```{r setup}
+library(tidyverse)
+library(grpreg)
+library(splines)
+library(refund)
+library(refund.shiny)
+```
+
+## Notation for functional data
+
+PLACEHOLDER FOR SPEAKERDECK SLIDES
+
+## Practical example
+
+In this section we will load an accelerometer dataset and demonstrate basic methods for plotting and summarizing the data.
+

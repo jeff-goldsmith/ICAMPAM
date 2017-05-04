@@ -1,0 +1,27 @@
+name: "ICAMPAM"
+output_dir: "."
+navbar:
+  title: "ICAMPAM 2017"
+  left:
+    - text: "Home"
+      href: index.html
+    - text: "Short Course"
+      menu:
+        - text: "Data and Code"
+          href: shortcourse_data.html
+        - text: "Notation"
+          href: shortcourse_notation.html
+        - text: "Functional PCA"
+          href: shortcourse_fpca.html
+        - text: "Scalar-on-Function Regression"
+          href: shortcourse_sofr.html
+        - text: "Function-on-Scalar Regression"
+          href: shortcourse_fosr.html
+  right:
+    - text: "About"
+      href: about.html
+    - icon: fa-github fa-lg
+      href: http://github.com/jeff-goldsmith/ICAMPAM
+output:
+  html_document:
+    theme: flatly

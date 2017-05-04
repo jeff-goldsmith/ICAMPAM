@@ -1,0 +1,17 @@
+---
+title: "About This Website"
+---
+
+This is an [R Markdown website](http://rmarkdown.rstudio.com/rmarkdown_websites.html), created by [Jeff Goldsmith](http://jeffgoldsmith.com) and [Vadim Zipunnikov](http://www.biostat.jhsph.edu/~vzipunni/) for a functional data workshop at [ICAMPAM](http://www.ismpb.org/pre-conference-workshops/).
+
+In the short course, we'll actively use the `refund` packages, and sometimes will use `refund.shiny` and `tidyverse`. Code to install the packages follows, and version information about each of these packages and their dependencies is at the bottom of this page.
+```{r, eval=FALSE}
+install.packages(c("refund", "refund.shiny", "tidyverse"))
+```
+
+Versions of key packages:
+
+```{r}
+devtools::session_info(c("refund", "refund.shiny"))
+```
+

@@ -1,0 +1,7 @@
+---
+title: "ICAMPAM 2017"
+---
+
+The fifth [ICAMPAM Congress](http://www.ismpb.org/program/) will be held June 21-23, 2017, in Bethesda, Maryland. This congress is hosted by the International Society for the Measurement of Physical Behaviour and the National Institutes of Health (NIH); topics include "ambulatory monitoring, wearable monitors, movement sensors, physical activity, sedentary behaviour, movement behaviour, body postures, sleep and constructs related to physical behaviours."
+
+This page contains materials by [Vadim Zipunnikov](http://www.biostat.jhsph.edu/~vzipunni/) and [Jeff Goldsmith](http://jeffgoldsmith.com) for the pre-conference workshop titled "Functional Data Analysis for Wearables: Methods and Applications".
