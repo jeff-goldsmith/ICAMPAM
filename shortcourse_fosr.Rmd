@@ -36,7 +36,7 @@ In this section we'll use the [HeadStart data](./Data.html) to motivate the func
 
 ## Practical example
 
-Rainbow plot
+One use of the rainbow plot is to get a quick sense for whether functional responses are related to covariates. Below we plot activity curves according to the season in which they were observed. Because the data are noisy enough that trends are not immediately apparent, we also include smooth means for both seasons.
 
 ```{r headstart_explore, eval = TRUE}
 load("./DataCode/HeadStart.RDA")
@@ -47,26 +47,25 @@ as_refundObj(accel) %>%
 	geom_smooth(aes(group = season_warm), se = FALSE)
 ```
 
-SLR
+Based on the above, we fit the FoSR equivalent of a simple linear regression to these data. 
 
 ```{r headstart_fosr_slr, eval = TRUE}
 temp_df = covariate_data
 temp_df$accel = accel
 
-fosr_slr = bayes_fosr(accel ~ season_warm, data = temp_df)
+fosr_slr = bayes_fosr(accel ~ season_warm, data = temp_df, est.method = "GLS", Kt = 8)
 
 as_refundObj(fosr_slr$beta.hat) %>% 
 	ggplot(aes(x = index, y = value)) + facet_grid(~id) + geom_path()
 ```
 
-(Incidentally, as for FPCA analyses, the `refund.shiny` package has helpful tools for visualizing the results of a function-on-scalar regression analysis.)
+The `refund.shiny` package has helpful tools for visualizing the results of a function-on-scalar regression analysis; these can be helpful for understanding the results. 
 
 ```{r headstart_fosr_slr_interactive, eval = FALSE}
 plot_shiny(fosr_slr)
 ```
 
-
-MLR
+To examine more complex associations, and to account for possible confounding, we use the FoSR equivalent of a multiple linear regression.
 
 ```{r headstart_fosr_mlr, eval = TRUE}
 temp_df = covariate_data
@@ -80,13 +79,13 @@ as_refundObj(fosr_mlr$beta.hat[-1,]) %>%
 	ggplot(aes(x = index, y = value, group = id)) + geom_path(alpha = .5)
 ```
 
-
+Again, the results of this model can be easier to understand using interactive graphics.
 
 ```{r headstart_fosr_mlr_interactive, eval = FALSE}
 plot_shiny(fosr_mlr)
 ```
 
-Comparison with MLR
+For these same data, we can compute average activity counts for each subject and fit a usual MLR. 
 
 ```{r headstart_comparison, eval = TRUE}
 temp_df = covariate_data
@@ -101,6 +100,7 @@ summary(mlr) %>%
 	knitr::kable()
 ```
 
+The table below compares the results of the MLR to the integrated coefficients in the FoSR.
 
 ```{r headstart_comparison_table, eval = TRUE}
 table.compare = data.frame(beta.mlr = coef(mlr),

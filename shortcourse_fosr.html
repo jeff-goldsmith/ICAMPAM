@@ -368,7 +368,7 @@ theme_set(theme_bw() + theme(legend.position = &quot;bottom&quot;))</code></pre>
 </div>
 <div id="practical-example" class="section level2">
 <h2>Practical example</h2>
-<p>Rainbow plot</p>
+<p>One use of the rainbow plot is to get a quick sense for whether functional responses are related to covariates. Below we plot activity curves according to the season in which they were observed. Because the data are noisy enough that trends are not immediately apparent, we also include smooth means for both seasons.</p>
 <pre class="r"><code>load(&quot;./DataCode/HeadStart.RDA&quot;)
 
 as_refundObj(accel) %&gt;% 
@@ -378,20 +378,20 @@ as_refundObj(accel) %&gt;%
 ## Joining, by = &quot;id&quot;
 ## `geom_smooth()` using method = &#39;gam&#39;</code></pre>
 <p><img src="shortcourse_fosr_files/figure-html/headstart_explore-1.png" width="768" /></p>
-<p>SLR</p>
+<p>Based on the above, we fit the FoSR equivalent of a simple linear regression to these data.</p>
 <pre class="r"><code>temp_df = covariate_data
 temp_df$accel = accel
 
-fosr_slr = bayes_fosr(accel ~ season_warm, data = temp_df)
-## Beginning Algorithm 
-## .........
+fosr_slr = bayes_fosr(accel ~ season_warm, data = temp_df, est.method = &quot;GLS&quot;, Kt = 8)
+## Using OLS to estimate residual covariance 
+## GLS
 
 as_refundObj(fosr_slr$beta.hat) %&gt;% 
     ggplot(aes(x = index, y = value)) + facet_grid(~id) + geom_path()</code></pre>
 <p><img src="shortcourse_fosr_files/figure-html/headstart_fosr_slr-1.png" width="768" /></p>
-<p>(Incidentally, as for FPCA analyses, the <code>refund.shiny</code> package has helpful tools for visualizing the results of a function-on-scalar regression analysis.)</p>
+<p>The <code>refund.shiny</code> package has helpful tools for visualizing the results of a function-on-scalar regression analysis; these can be helpful for understanding the results.</p>
 <pre class="r"><code>plot_shiny(fosr_slr)</code></pre>
-<p>MLR</p>
+<p>To examine more complex associations, and to account for possible confounding, we use the FoSR equivalent of a multiple linear regression.</p>
 <pre class="r"><code>temp_df = covariate_data
 temp_df$accel = accel
 
@@ -404,8 +404,9 @@ fosr_mlr = bayes_fosr(accel ~ season_warm + sex_female + BMIZ + TV_g2hr + video_
 as_refundObj(fosr_mlr$beta.hat[-1,]) %&gt;% 
     ggplot(aes(x = index, y = value, group = id)) + geom_path(alpha = .5)</code></pre>
 <p><img src="shortcourse_fosr_files/figure-html/headstart_fosr_mlr-1.png" width="768" /></p>
+<p>Again, the results of this model can be easier to understand using interactive graphics.</p>
 <pre class="r"><code>plot_shiny(fosr_mlr)</code></pre>
-<p>Comparison with MLR</p>
+<p>For these same data, we can compute average activity counts for each subject and fit a usual MLR.</p>
 <pre class="r"><code>temp_df = covariate_data
 temp_df$mean_accel = apply(accel, 1, mean)
 
@@ -541,6 +542,7 @@ summary(mlr) %&gt;%
 </tr>
 </tbody>
 </table>
+<p>The table below compares the results of the MLR to the integrated coefficients in the FoSR.</p>
 <pre class="r"><code>table.compare = data.frame(beta.mlr = coef(mlr),
                            beta.fosr = apply(fosr_mlr$beta.hat, 1, mean))
 
@@ -557,82 +559,82 @@ knitr::kable(table.compare)</code></pre>
 <tr class="odd">
 <td>(Intercept)</td>
 <td align="right">488.9193011</td>
-<td align="right">492.3759236</td>
+<td align="right">491.8525565</td>
 </tr>
 <tr class="even">
 <td>season_warm</td>
 <td align="right">-73.0830431</td>
-<td align="right">-72.8983720</td>
+<td align="right">-72.9390639</td>
 </tr>
 <tr class="odd">
 <td>sex_female</td>
 <td align="right">-41.8682904</td>
-<td align="right">-41.5149737</td>
+<td align="right">-41.5867899</td>
 </tr>
 <tr class="even">
 <td>BMIZ</td>
 <td align="right">-7.7441779</td>
-<td align="right">-7.5206326</td>
+<td align="right">-7.5672532</td>
 </tr>
 <tr class="odd">
 <td>TV_g2hr</td>
 <td align="right">-7.9014311</td>
-<td align="right">-6.7365168</td>
+<td align="right">-6.9665184</td>
 </tr>
 <tr class="even">
 <td>video_g1hr</td>
 <td align="right">-7.8781107</td>
-<td align="right">-7.2266899</td>
+<td align="right">-7.3579088</td>
 </tr>
 <tr class="odd">
 <td>mom_work_yes</td>
 <td align="right">5.0072296</td>
-<td align="right">3.3332964</td>
+<td align="right">3.5350195</td>
 </tr>
 <tr class="even">
 <td>asthma_yes</td>
 <td align="right">4.7339440</td>
-<td align="right">3.8185928</td>
+<td align="right">3.9862608</td>
 </tr>
 <tr class="odd">
 <td>child_age</td>
 <td align="right">0.7381528</td>
-<td align="right">0.7010055</td>
+<td align="right">0.7095908</td>
 </tr>
 <tr class="even">
 <td>mom_age</td>
 <td align="right">-1.1887019</td>
-<td align="right">-1.0875585</td>
+<td align="right">-1.1082094</td>
 </tr>
 <tr class="odd">
 <td>educ_mom</td>
 <td align="right">0.2471495</td>
-<td align="right">0.2034634</td>
+<td align="right">0.2143891</td>
 </tr>
 <tr class="even">
 <td>num_rooms</td>
 <td align="right">-3.8978069</td>
-<td align="right">-3.3080851</td>
+<td align="right">-3.4247814</td>
 </tr>
 <tr class="odd">
 <td>mom_born_US</td>
 <td align="right">-18.0355544</td>
-<td align="right">-16.2675738</td>
+<td align="right">-16.6228817</td>
 </tr>
 <tr class="even">
 <td>tricep</td>
 <td align="right">1.0166865</td>
-<td align="right">0.8166354</td>
+<td align="right">0.8447897</td>
 </tr>
 <tr class="odd">
 <td>subscap</td>
 <td align="right">1.0946546</td>
-<td align="right">0.8482396</td>
+<td align="right">0.8888570</td>
 </tr>
 <tr class="even">
 <td>skinfold</td>
 <td align="right">0.2070383</td>
-<td align="right">0.1592154</td>
+<td align="right">0.1694820</td>
 </tr>
 </tbody>
 </table>
