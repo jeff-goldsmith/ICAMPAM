@@ -68,9 +68,6 @@ plot_shiny(fosr_slr)
 To examine more complex associations, and to account for possible confounding, we use the FoSR equivalent of a multiple linear regression.
 
 ```{r headstart_fosr_mlr, eval = TRUE}
-temp_df = covariate_data
-temp_df$accel = accel
-
 fosr_mlr = bayes_fosr(accel ~ season_warm + sex_female + BMIZ + TV_g2hr + video_g1hr +
 														 	mom_work_yes + asthma_yes + child_age + mom_age + educ_mom + num_rooms + 
 														 	mom_born_US + tricep + subscap + skinfold, data = temp_df)
@@ -97,7 +94,7 @@ mlr = lm(mean_accel ~ season_warm + sex_female + BMIZ + TV_g2hr + video_g1hr +
 
 summary(mlr) %>% 
 	broom::tidy() %>%
-	knitr::kable()
+	knitr::kable(digits = 2)
 ```
 
 The table below compares the results of the MLR to the integrated coefficients in the FoSR.
@@ -106,5 +103,5 @@ The table below compares the results of the MLR to the integrated coefficients i
 table.compare = data.frame(beta.mlr = coef(mlr),
                            beta.fosr = apply(fosr_mlr$beta.hat, 1, mean))
 
-knitr::kable(table.compare)
+knitr::kable(table.compare, digits = 2)
 ```
