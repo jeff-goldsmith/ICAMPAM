@@ -9,18 +9,20 @@ output:
 
 ```{r, echo = FALSE}
 knitr::opts_chunk$set(
-  collapse = TRUE
+  collapse = TRUE,
+  fig.width = 8,
+  fig.height = 4
 )
 ```
 
 This page contains a combination of traditional lecture materials (slides) and code demonstrating the relevant methods. The short course will proceed by working through both. We will use several recent packages in our examples; see the [About](./About.html) page for information about the package versions.
 
 ```{r setup}
+
 library(tidyverse)
-library(grpreg)
-library(splines)
-library(refund)
 library(refund.shiny)
+
+theme_set(theme_bw() + theme(legend.position = "bottom"))
 ```
 
 ## Notation for functional data
@@ -29,5 +31,76 @@ PLACEHOLDER FOR SPEAKERDECK SLIDES
 
 ## Practical example
 
-In this section we will load an accelerometer dataset and demonstrate basic methods for plotting and summarizing the data.
+In this section we will use the HeadStart dataset as an example to review notation and demonstrate useful plots of functional data. The code below loads this dataset.
 
+```{r headstart_load, eval = TRUE}
+
+load("./DataCode/HeadStart.RDA")
+
+```
+
+Plot for one subject
+
+```{r headstart_onesubj, eval = TRUE}
+
+as_refundObj(accel) %>% 
+	filter(id == 1) %>%
+	ggplot(aes(x = index, y = value)) + geom_path()
+
+```
+
+Plot for all subjects
+
+```{r headstart_spaghetti, eval = TRUE}
+
+as_refundObj(accel) %>% 
+	ggplot(aes(x = index, y = value, group = id)) + geom_path(alpha = .1)
+
+```
+
+Compute pointwise mean, and add to plot.
+
+```{r headstart_pw_mean, eval = TRUE}
+
+pw_mean = as_refundObj(accel) %>%
+	group_by(index) %>%
+	summarize(pw_mean = mean(value))
+
+as_refundObj(accel) %>% 
+	ggplot(aes(x = index, y = value, group = id)) + geom_path(alpha = .1) +
+	geom_path(data = pw_mean, aes(y = pw_mean, group = NULL), color = "red", size = 1)
+
+```
+
+Add smoothed mean
+
+```{r headstart_smooth_mean, eval = TRUE}
+
+as_refundObj(accel) %>% 
+	ggplot(aes(x = index, y = value, group = id)) + geom_path(alpha = .1) +
+	geom_smooth(aes(group = NULL), color = "red", size = 1) 
+
+```
+
+Rainbow plot
+
+```{r headstart_rainbow, eval = TRUE}
+
+as_refundObj(accel) %>% 
+	left_join(dplyr::select(covariate_data, id, BMIZ)) %>%
+	ggplot(aes(x = index, y = value, group = id, color = BMIZ)) + geom_path(alpha = .5) + 
+  scale_colour_gradientn(colours = c("red","yellow","green","lightblue","darkblue"),
+                         values = c(1.0, 0.6, 0.55, 0.45, 0.4, 0))
+
+```
+
+Show covariance; maybe using heatmap or plotly??
+
+```{r headstart_covariance, eval = TRUE, fig.height = 6, fig.width = 6}
+
+library(plotly)
+
+covariance = cov(accel)
+plot_ly(z = ~covariance) %>% add_surface()
+
+```
