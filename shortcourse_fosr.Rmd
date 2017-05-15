@@ -38,7 +38,7 @@ In this section we'll use the [HeadStart data](./Data.html) to motivate the func
 
 Rainbow plot
 
-```{r Accel_explore, eval = TRUE}
+```{r headstart_explore, eval = TRUE}
 load("./DataCode/HeadStart.RDA")
 
 as_refundObj(accel) %>% 
@@ -47,23 +47,64 @@ as_refundObj(accel) %>%
 	geom_smooth(aes(group = season_warm), se = FALSE)
 ```
 
-To motivate the use of variable selection methods for this dataset, we can examine the results of an analysis that does not shrink coefficients. The code below fits such a model and shows all resulting coefficients; while there are some obvious large effects, many others are small and may not be necessary.
+SLR
 
-```{r Accel_varselect_motivate, eval = TRUE}
+```{r headstart_fosr_slr, eval = TRUE}
 temp_df = covariate_data
 temp_df$accel = accel
 
-fit_unpenalized = bayes_fosr(accel ~ season_warm + sex_female + BMIZ + TV_g2hr + video_g1hr +
-														 	mom_work_yes + asthma_yes + child_age + mom_age + educ_mom + num_rooms + 
-														 	mom_born_US + tricep + subscap + skinfold, data = temp_df)
+fosr_slr = bayes_fosr(accel ~ season_warm, data = temp_df)
 
-as_refundObj(fit_unpenalized$beta.hat[-1,]) %>% 
-	ggplot(aes(x = index, y = value, group = id)) + geom_path(alpha = .5)
+as_refundObj(fosr_slr$beta.hat) %>% 
+	ggplot(aes(x = index, y = value)) + facet_grid(~id) + geom_path()
 ```
 
 (Incidentally, as for FPCA analyses, the `refund.shiny` package has helpful tools for visualizing the results of a function-on-scalar regression analysis.)
 
-```{r Accel_fosr_interactive, eval = FALSE}
-plot_shiny(fit_unpenalized)
+```{r headstart_fosr_slr_interactive, eval = FALSE}
+plot_shiny(fosr_slr)
 ```
 
+
+MLR
+
+```{r headstart_fosr_mlr, eval = TRUE}
+temp_df = covariate_data
+temp_df$accel = accel
+
+fosr_mlr = bayes_fosr(accel ~ season_warm + sex_female + BMIZ + TV_g2hr + video_g1hr +
+														 	mom_work_yes + asthma_yes + child_age + mom_age + educ_mom + num_rooms + 
+														 	mom_born_US + tricep + subscap + skinfold, data = temp_df)
+
+as_refundObj(fosr_mlr$beta.hat[-1,]) %>% 
+	ggplot(aes(x = index, y = value, group = id)) + geom_path(alpha = .5)
+```
+
+
+
+```{r headstart_fosr_mlr_interactive, eval = FALSE}
+plot_shiny(fosr_mlr)
+```
+
+Comparison with MLR
+
+```{r headstart_comparison, eval = TRUE}
+temp_df = covariate_data
+temp_df$mean_accel = apply(accel, 1, mean)
+
+mlr = lm(mean_accel ~ season_warm + sex_female + BMIZ + TV_g2hr + video_g1hr +
+											mom_work_yes + asthma_yes + child_age + mom_age + educ_mom + num_rooms + 
+											mom_born_US + tricep + subscap + skinfold, data = temp_df)
+
+summary(mlr) %>% 
+	broom::tidy() %>%
+	knitr::kable()
+```
+
+
+```{r headstart_comparison_table, eval = TRUE}
+table.compare = data.frame(beta.mlr = coef(mlr),
+                           beta.fosr = apply(fosr_mlr$beta.hat, 1, mean))
+
+knitr::kable(table.compare)
+```
