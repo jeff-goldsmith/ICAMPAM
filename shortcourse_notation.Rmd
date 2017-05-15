@@ -39,7 +39,7 @@ load("./DataCode/HeadStart.RDA")
 
 ```
 
-Plot for one subject
+First, we plot a single subject to illustrate the "functional" nature of these data. 
 
 ```{r headstart_onesubj, eval = TRUE}
 
@@ -49,7 +49,7 @@ as_refundObj(accel) %>%
 
 ```
 
-Plot for all subjects
+Next, we plot all subjects. The previous plot is a single noodle in this plot of spaghetti.
 
 ```{r headstart_spaghetti, eval = TRUE}
 
@@ -58,7 +58,7 @@ as_refundObj(accel) %>%
 
 ```
 
-Compute pointwise mean, and add to plot.
+Now we compute the mean at each time point separately, and add this to our spaghetti. 
 
 ```{r headstart_pw_mean, eval = TRUE}
 
@@ -72,7 +72,7 @@ as_refundObj(accel) %>%
 
 ```
 
-Add smoothed mean
+The pointwise mean is a bit jagged; now we use a smooth mean estimate.
 
 ```{r headstart_smooth_mean, eval = TRUE}
 
@@ -82,7 +82,7 @@ as_refundObj(accel) %>%
 
 ```
 
-Rainbow plot
+Rainbow plots color each noodle according to some covariate value. We illustrate this using BMI Z-score. 
 
 ```{r headstart_rainbow, eval = TRUE}
 
@@ -94,9 +94,9 @@ as_refundObj(accel) %>%
 
 ```
 
-Show covariance; maybe using heatmap or plotly??
+Lastly, we show the covariance surface to get an idea of the overall variance and the correlation across times. 
 
-```{r headstart_covariance, eval = TRUE, fig.height = 6, fig.width = 6}
+```{r headstart_covariance, eval = TRUE, fig.height = 5, fig.width = 7}
 
 library(plotly)
 
