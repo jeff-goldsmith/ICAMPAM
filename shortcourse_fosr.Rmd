@@ -42,9 +42,9 @@ One use of the rainbow plot is to get a quick sense for whether functional respo
 load("./DataCode/HeadStart.RDA")
 
 as_refundObj(accel) %>% 
-	left_join(dplyr::select(covariate_data, id, season_warm)) %>%
-	ggplot(aes(x = index, y = value, group = id, color = season_warm)) + geom_path(alpha = .1) +
-	geom_smooth(aes(group = season_warm), se = FALSE)
+	left_join(dplyr::select(covariate_data, id, season)) %>%
+	ggplot(aes(x = index, y = value, group = id, color = season)) + geom_path(alpha = .1) +
+	geom_smooth(aes(group = season), se = FALSE)
 ```
 
 Based on the above, we fit the FoSR equivalent of a simple linear regression to these data. 
@@ -53,7 +53,8 @@ Based on the above, we fit the FoSR equivalent of a simple linear regression to 
 temp_df = covariate_data
 temp_df$accel = accel
 
-fosr_slr = bayes_fosr(accel ~ season_warm, data = temp_df, est.method = "GLS", Kt = 8)
+fosr_slr = bayes_fosr(accel ~ season, data = temp_df, 
+											est.method = "GLS", Kt = 8, basis = "pbs")
 
 as_refundObj(fosr_slr$beta.hat) %>% 
 	ggplot(aes(x = index, y = value)) + facet_grid(~id) + geom_path()
@@ -68,9 +69,11 @@ plot_shiny(fosr_slr)
 To examine more complex associations, and to account for possible confounding, we use the FoSR equivalent of a multiple linear regression.
 
 ```{r headstart_fosr_mlr, eval = TRUE}
-fosr_mlr = bayes_fosr(accel ~ season_warm + sex_female + BMIZ + TV_g2hr + video_g1hr +
-														 	mom_work_yes + asthma_yes + child_age + mom_age + educ_mom + num_rooms + 
-														 	mom_born_US + tricep + subscap + skinfold, data = temp_df)
+fosr_mlr = bayes_fosr(accel ~ season + sex + BMIZ + TV + 
+                      videogames + mom_work + asthma + child_age + 
+                      mom_age + educ_mom + num_rooms + mom_born_US + tricep + 
+                      subscap + skinfold, data = temp_df, 
+											est.method = "GLS", Kt = 8, basis = "pbs")
 
 as_refundObj(fosr_mlr$beta.hat[-1,]) %>% 
 	ggplot(aes(x = index, y = value, group = id)) + geom_path(alpha = .5)
@@ -88,9 +91,10 @@ For these same data, we can compute average activity counts for each subject and
 temp_df = covariate_data
 temp_df$mean_accel = apply(accel, 1, mean)
 
-mlr = lm(mean_accel ~ season_warm + sex_female + BMIZ + TV_g2hr + video_g1hr +
-											mom_work_yes + asthma_yes + child_age + mom_age + educ_mom + num_rooms + 
-											mom_born_US + tricep + subscap + skinfold, data = temp_df)
+mlr = lm(mean_accel ~ season + sex + BMIZ + TV + 
+                      videogames + mom_work + asthma + child_age + 
+                      mom_age + educ_mom + num_rooms + mom_born_US + tricep + 
+                      subscap + skinfold, data = temp_df)
 
 summary(mlr) %>% 
 	broom::tidy() %>%

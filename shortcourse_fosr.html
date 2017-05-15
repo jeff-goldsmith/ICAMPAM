@@ -372,9 +372,9 @@ theme_set(theme_bw() + theme(legend.position = &quot;bottom&quot;))</code></pre>
 <pre class="r"><code>load(&quot;./DataCode/HeadStart.RDA&quot;)
 
 as_refundObj(accel) %&gt;% 
-    left_join(dplyr::select(covariate_data, id, season_warm)) %&gt;%
-    ggplot(aes(x = index, y = value, group = id, color = season_warm)) + geom_path(alpha = .1) +
-    geom_smooth(aes(group = season_warm), se = FALSE)
+    left_join(dplyr::select(covariate_data, id, season)) %&gt;%
+    ggplot(aes(x = index, y = value, group = id, color = season)) + geom_path(alpha = .1) +
+    geom_smooth(aes(group = season), se = FALSE)
 ## Joining, by = &quot;id&quot;
 ## `geom_smooth()` using method = &#39;gam&#39;</code></pre>
 <p><img src="shortcourse_fosr_files/figure-html/headstart_explore-1.png" width="768" /></p>
@@ -382,7 +382,8 @@ as_refundObj(accel) %&gt;%
 <pre class="r"><code>temp_df = covariate_data
 temp_df$accel = accel
 
-fosr_slr = bayes_fosr(accel ~ season_warm, data = temp_df, est.method = &quot;GLS&quot;, Kt = 8)
+fosr_slr = bayes_fosr(accel ~ season, data = temp_df, 
+                                            est.method = &quot;GLS&quot;, Kt = 8, basis = &quot;pbs&quot;)
 ## Using OLS to estimate residual covariance 
 ## GLS
 
@@ -392,11 +393,13 @@ as_refundObj(fosr_slr$beta.hat) %&gt;%
 <p>The <code>refund.shiny</code> package has helpful tools for visualizing the results of a function-on-scalar regression analysis; these can be helpful for understanding the results.</p>
 <pre class="r"><code>plot_shiny(fosr_slr)</code></pre>
 <p>To examine more complex associations, and to account for possible confounding, we use the FoSR equivalent of a multiple linear regression.</p>
-<pre class="r"><code>fosr_mlr = bayes_fosr(accel ~ season_warm + sex_female + BMIZ + TV_g2hr + video_g1hr +
-                                                            mom_work_yes + asthma_yes + child_age + mom_age + educ_mom + num_rooms + 
-                                                            mom_born_US + tricep + subscap + skinfold, data = temp_df)
-## Beginning Algorithm 
-## .........
+<pre class="r"><code>fosr_mlr = bayes_fosr(accel ~ season + sex + BMIZ + TV + 
+                      videogames + mom_work + asthma + child_age + 
+                      mom_age + educ_mom + num_rooms + mom_born_US + tricep + 
+                      subscap + skinfold, data = temp_df, 
+                                            est.method = &quot;GLS&quot;, Kt = 8, basis = &quot;pbs&quot;)
+## Using OLS to estimate residual covariance 
+## GLS
 
 as_refundObj(fosr_mlr$beta.hat[-1,]) %&gt;% 
     ggplot(aes(x = index, y = value, group = id)) + geom_path(alpha = .5)</code></pre>
@@ -407,9 +410,10 @@ as_refundObj(fosr_mlr$beta.hat[-1,]) %&gt;%
 <pre class="r"><code>temp_df = covariate_data
 temp_df$mean_accel = apply(accel, 1, mean)
 
-mlr = lm(mean_accel ~ season_warm + sex_female + BMIZ + TV_g2hr + video_g1hr +
-                                            mom_work_yes + asthma_yes + child_age + mom_age + educ_mom + num_rooms + 
-                                            mom_born_US + tricep + subscap + skinfold, data = temp_df)
+mlr = lm(mean_accel ~ season + sex + BMIZ + TV + 
+                      videogames + mom_work + asthma + child_age + 
+                      mom_age + educ_mom + num_rooms + mom_born_US + tricep + 
+                      subscap + skinfold, data = temp_df)
 
 summary(mlr) %&gt;% 
     broom::tidy() %&gt;%
@@ -427,115 +431,115 @@ summary(mlr) %&gt;%
 <tbody>
 <tr class="odd">
 <td align="left">(Intercept)</td>
-<td align="right">488.92</td>
-<td align="right">51.70</td>
-<td align="right">9.46</td>
+<td align="right">585.54</td>
+<td align="right">53.19</td>
+<td align="right">11.01</td>
 <td align="right">0.00</td>
 </tr>
 <tr class="even">
-<td align="left">season_warm</td>
-<td align="right">-73.08</td>
-<td align="right">10.47</td>
-<td align="right">-6.98</td>
+<td align="left">seasoncool</td>
+<td align="right">-60.17</td>
+<td align="right">10.53</td>
+<td align="right">-5.72</td>
 <td align="right">0.00</td>
 </tr>
 <tr class="odd">
-<td align="left">sex_female</td>
-<td align="right">-41.87</td>
-<td align="right">10.27</td>
-<td align="right">-4.08</td>
-<td align="right">0.00</td>
+<td align="left">sexmale</td>
+<td align="right">-9.38</td>
+<td align="right">10.14</td>
+<td align="right">-0.92</td>
+<td align="right">0.36</td>
 </tr>
 <tr class="even">
 <td align="left">BMIZ</td>
-<td align="right">-7.74</td>
-<td align="right">3.86</td>
-<td align="right">-2.01</td>
-<td align="right">0.05</td>
+<td align="right">-0.10</td>
+<td align="right">3.56</td>
+<td align="right">-0.03</td>
+<td align="right">0.98</td>
 </tr>
 <tr class="odd">
-<td align="left">TV_g2hr</td>
-<td align="right">-7.90</td>
-<td align="right">10.22</td>
-<td align="right">-0.77</td>
-<td align="right">0.44</td>
+<td align="left">TV&gt;=2h</td>
+<td align="right">-16.71</td>
+<td align="right">10.18</td>
+<td align="right">-1.64</td>
+<td align="right">0.10</td>
 </tr>
 <tr class="even">
-<td align="left">video_g1hr</td>
-<td align="right">-7.88</td>
-<td align="right">12.33</td>
-<td align="right">-0.64</td>
+<td align="left">videogames&gt;=1h</td>
+<td align="right">-7.47</td>
+<td align="right">11.47</td>
+<td align="right">-0.65</td>
 <td align="right">0.52</td>
 </tr>
 <tr class="odd">
-<td align="left">mom_work_yes</td>
-<td align="right">5.01</td>
-<td align="right">10.34</td>
-<td align="right">0.48</td>
-<td align="right">0.63</td>
+<td align="left">mom_workyes</td>
+<td align="right">-4.44</td>
+<td align="right">10.15</td>
+<td align="right">-0.44</td>
+<td align="right">0.66</td>
 </tr>
 <tr class="even">
-<td align="left">asthma_yes</td>
-<td align="right">4.73</td>
-<td align="right">10.93</td>
-<td align="right">0.43</td>
-<td align="right">0.67</td>
+<td align="left">asthmayes</td>
+<td align="right">-2.99</td>
+<td align="right">10.73</td>
+<td align="right">-0.28</td>
+<td align="right">0.78</td>
 </tr>
 <tr class="odd">
 <td align="left">child_age</td>
-<td align="right">0.74</td>
-<td align="right">0.64</td>
-<td align="right">1.16</td>
-<td align="right">0.25</td>
-</tr>
-<tr class="even">
-<td align="left">mom_age</td>
-<td align="right">-1.19</td>
-<td align="right">0.85</td>
+<td align="right">-0.91</td>
+<td align="right">0.65</td>
 <td align="right">-1.40</td>
 <td align="right">0.16</td>
 </tr>
+<tr class="even">
+<td align="left">mom_age</td>
+<td align="right">-0.33</td>
+<td align="right">0.87</td>
+<td align="right">-0.38</td>
+<td align="right">0.71</td>
+</tr>
 <tr class="odd">
 <td align="left">educ_mom</td>
-<td align="right">0.25</td>
-<td align="right">1.79</td>
-<td align="right">0.14</td>
-<td align="right">0.89</td>
+<td align="right">-0.84</td>
+<td align="right">1.68</td>
+<td align="right">-0.50</td>
+<td align="right">0.62</td>
 </tr>
 <tr class="even">
 <td align="left">num_rooms</td>
-<td align="right">-3.90</td>
-<td align="right">5.36</td>
-<td align="right">-0.73</td>
-<td align="right">0.47</td>
+<td align="right">5.17</td>
+<td align="right">4.79</td>
+<td align="right">1.08</td>
+<td align="right">0.28</td>
 </tr>
 <tr class="odd">
-<td align="left">mom_born_US</td>
-<td align="right">-18.04</td>
-<td align="right">13.10</td>
-<td align="right">-1.38</td>
-<td align="right">0.17</td>
+<td align="left">mom_born_USyes</td>
+<td align="right">3.14</td>
+<td align="right">12.76</td>
+<td align="right">0.25</td>
+<td align="right">0.81</td>
 </tr>
 <tr class="even">
 <td align="left">tricep</td>
-<td align="right">1.02</td>
-<td align="right">1.64</td>
-<td align="right">0.62</td>
-<td align="right">0.54</td>
+<td align="right">0.83</td>
+<td align="right">1.48</td>
+<td align="right">0.56</td>
+<td align="right">0.58</td>
 </tr>
 <tr class="odd">
 <td align="left">subscap</td>
-<td align="right">1.09</td>
-<td align="right">1.63</td>
-<td align="right">0.67</td>
-<td align="right">0.50</td>
+<td align="right">0.01</td>
+<td align="right">1.36</td>
+<td align="right">0.01</td>
+<td align="right">0.99</td>
 </tr>
 <tr class="even">
 <td align="left">skinfold</td>
-<td align="right">0.21</td>
-<td align="right">0.81</td>
-<td align="right">0.26</td>
-<td align="right">0.80</td>
+<td align="right">-0.66</td>
+<td align="right">0.79</td>
+<td align="right">-0.83</td>
+<td align="right">0.41</td>
 </tr>
 </tbody>
 </table>
@@ -555,83 +559,83 @@ knitr::kable(table.compare, digits = 2)</code></pre>
 <tbody>
 <tr class="odd">
 <td>(Intercept)</td>
-<td align="right">488.92</td>
-<td align="right">492.20</td>
+<td align="right">585.54</td>
+<td align="right">541.60</td>
 </tr>
 <tr class="even">
-<td>season_warm</td>
-<td align="right">-73.08</td>
-<td align="right">-72.91</td>
+<td>seasoncool</td>
+<td align="right">-60.17</td>
+<td align="right">-67.39</td>
 </tr>
 <tr class="odd">
-<td>sex_female</td>
-<td align="right">-41.87</td>
-<td align="right">-41.54</td>
+<td>sexmale</td>
+<td align="right">-9.38</td>
+<td align="right">-14.54</td>
 </tr>
 <tr class="even">
 <td>BMIZ</td>
-<td align="right">-7.74</td>
-<td align="right">-7.54</td>
+<td align="right">-0.10</td>
+<td align="right">-0.17</td>
 </tr>
 <tr class="odd">
-<td>TV_g2hr</td>
-<td align="right">-7.90</td>
-<td align="right">-6.81</td>
+<td>TV&gt;=2h</td>
+<td align="right">-16.71</td>
+<td align="right">-18.08</td>
 </tr>
 <tr class="even">
-<td>video_g1hr</td>
-<td align="right">-7.88</td>
-<td align="right">-7.27</td>
+<td>videogames&gt;=1h</td>
+<td align="right">-7.47</td>
+<td align="right">-0.44</td>
 </tr>
 <tr class="odd">
-<td>mom_work_yes</td>
-<td align="right">5.01</td>
-<td align="right">3.40</td>
+<td>mom_workyes</td>
+<td align="right">-4.44</td>
+<td align="right">-7.57</td>
 </tr>
 <tr class="even">
-<td>asthma_yes</td>
-<td align="right">4.73</td>
-<td align="right">3.88</td>
+<td>asthmayes</td>
+<td align="right">-2.99</td>
+<td align="right">2.81</td>
 </tr>
 <tr class="odd">
 <td>child_age</td>
-<td align="right">0.74</td>
-<td align="right">0.70</td>
+<td align="right">-0.91</td>
+<td align="right">-0.59</td>
 </tr>
 <tr class="even">
 <td>mom_age</td>
-<td align="right">-1.19</td>
-<td align="right">-1.09</td>
+<td align="right">-0.33</td>
+<td align="right">0.19</td>
 </tr>
 <tr class="odd">
 <td>educ_mom</td>
-<td align="right">0.25</td>
-<td align="right">0.21</td>
+<td align="right">-0.84</td>
+<td align="right">-0.97</td>
 </tr>
 <tr class="even">
 <td>num_rooms</td>
-<td align="right">-3.90</td>
-<td align="right">-3.35</td>
+<td align="right">5.17</td>
+<td align="right">3.70</td>
 </tr>
 <tr class="odd">
-<td>mom_born_US</td>
-<td align="right">-18.04</td>
-<td align="right">-16.38</td>
+<td>mom_born_USyes</td>
+<td align="right">3.14</td>
+<td align="right">-0.13</td>
 </tr>
 <tr class="even">
 <td>tricep</td>
-<td align="right">1.02</td>
 <td align="right">0.83</td>
+<td align="right">-0.10</td>
 </tr>
 <tr class="odd">
 <td>subscap</td>
-<td align="right">1.09</td>
-<td align="right">0.86</td>
+<td align="right">0.01</td>
+<td align="right">-0.82</td>
 </tr>
 <tr class="even">
 <td>skinfold</td>
-<td align="right">0.21</td>
-<td align="right">0.16</td>
+<td align="right">-0.66</td>
+<td align="right">-0.07</td>
 </tr>
 </tbody>
 </table>
