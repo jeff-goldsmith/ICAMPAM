@@ -27,7 +27,8 @@ theme_set(theme_bw() + theme(legend.position = "bottom"))
 
 ## Notation for functional data
 
-PLACEHOLDER FOR SPEAKERDECK SLIDES
+<script async class="speakerdeck-embed" data-id="22db63f1cf324ec6b998c631191af6ed" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script>
+<div style="margin-bottom:5px"> <strong> <a href="https://speakerdeck.com/jeffgoldsmith/icampam-notation" title="ICAMPAM Short Course: Notation for FDA" target="_blank">ICAMPAM Short Course: Notation for FDA</a> </strong> from <strong><a href="https://speakerdeck.com/jeffgoldsmith" target="_blank">Jeff Goldsmith</a></strong>. </div>
 
 ## Practical example
 
