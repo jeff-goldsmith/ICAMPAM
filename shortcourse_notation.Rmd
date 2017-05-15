@@ -32,7 +32,7 @@ theme_set(theme_bw() + theme(legend.position = "bottom"))
 
 ## Practical example
 
-In this section we will use the HeadStart dataset as an example to review notation and demonstrate useful plots of functional data. The code below loads this dataset.
+In this section we will use the [HeadStart data](./Data.html) as an example to review notation and demonstrate useful plots of functional data. The code below loads this dataset.
 
 ```{r headstart_load, eval = TRUE}
 
