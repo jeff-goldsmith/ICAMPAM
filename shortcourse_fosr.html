@@ -354,37 +354,28 @@ div.tocify {
 ## Conflicts with tidy packages ----------------------------------------------
 ## filter(): dplyr, stats
 ## lag():    dplyr, stats
-library(grpreg)
-## Loading required package: Matrix
-## 
-## Attaching package: &#39;Matrix&#39;
-## The following object is masked from &#39;package:tidyr&#39;:
-## 
-##     expand
-## 
-## Attaching package: &#39;grpreg&#39;
-## The following object is masked from &#39;package:dplyr&#39;:
-## 
-##     select
-library(splines)
 library(refund)
-library(refund.shiny)</code></pre>
-<p>In this section we’ll use the <a href="./Data.html">HeadStart data</a> to motivate the function-on-scalar regression model. Our main outcome of interest is the observed physical activity profile, with predictors including age, sex, and season. Below we plot activity profiles colored by sex.</p>
-<pre class="r"><code>load(&quot;./DataCode/HeadStart.RDA&quot;)
+library(refund.shiny)
 
-as_refundObj(accel) %&gt;% 
-    left_join(dplyr::select(covariate_data, id, sex_female)) %&gt;%
-    ggplot(aes(x = index, y = value, group = id, color = sex_female)) + geom_path(alpha = .5)
-## Joining, by = &quot;id&quot;</code></pre>
-<p><img src="shortcourse_fosr_files/figure-html/Accel_explore-1.png" width="672" /></p>
+theme_set(theme_bw() + theme(legend.position = &quot;bottom&quot;))</code></pre>
+<p>In this section we’ll use the <a href="./Data.html">HeadStart data</a> to motivate the function-on-scalar regression model. Our main outcome of interest is the observed physical activity profile, with predictors including age, sex, and season. This material draws heavily from <a href="http://jeffgoldsmith.com/Downloads/HeadStart.pdf">Goldsmith et al</a> (2016).</p>
 <div id="function-on-scalar-regression" class="section level2">
 <h2>Function-on-scalar regression</h2>
-<p>Slides below introduce function-on-scalar regression.</p>
-<p>PLACEHOLDER FOR SPEAKERDECK SLIDES</p>
+<script async class="speakerdeck-embed" data-id="337ceb9014d244a1a8b13282f00bae81" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script>
+<div style="margin-bottom:5px">
+<strong> <a href="https://speakerdeck.com/jeffgoldsmith/icampam-notation" title="ICAMPAM Short Course: FoSR" target="_blank">ICAMPAM Short Course: FoSR</a> </strong> from <strong><a href="https://speakerdeck.com/jeffgoldsmith" target="_blank">Jeff Goldsmith</a></strong>.
+</div>
 </div>
 <div id="practical-example" class="section level2">
 <h2>Practical example</h2>
-<p>CODE BELOW NEEDS SUBSTANTIAL EDITING</p>
+<p>Rainbow plot</p>
+<pre class="r"><code>load(&quot;./DataCode/HeadStart.RDA&quot;)
+
+as_refundObj(accel) %&gt;% 
+    left_join(dplyr::select(covariate_data, id, season_warm)) %&gt;%
+    ggplot(aes(x = index, y = value, group = id, color = season_warm)) + geom_path(alpha = .5)
+## Joining, by = &quot;id&quot;</code></pre>
+<p><img src="shortcourse_fosr_files/figure-html/Accel_explore-1.png" width="768" /></p>
 <p>To motivate the use of variable selection methods for this dataset, we can examine the results of an analysis that does not shrink coefficients. The code below fits such a model and shows all resulting coefficients; while there are some obvious large effects, many others are small and may not be necessary.</p>
 <pre class="r"><code>temp_df = covariate_data
 temp_df$accel = accel
@@ -397,7 +388,7 @@ fit_unpenalized = bayes_fosr(accel ~ season_warm + sex_female + BMIZ + TV_g2hr +
 
 as_refundObj(fit_unpenalized$beta.hat[-1,]) %&gt;% 
     ggplot(aes(x = index, y = value, group = id)) + geom_path(alpha = .5)</code></pre>
-<p><img src="shortcourse_fosr_files/figure-html/Accel_varselect_motivate-1.png" width="672" /></p>
+<p><img src="shortcourse_fosr_files/figure-html/Accel_varselect_motivate-1.png" width="768" /></p>
 <p>(Incidentally, as for FPCA analyses, the <code>refund.shiny</code> package has helpful tools for visualizing the results of a function-on-scalar regression analysis.)</p>
 <pre class="r"><code>plot_shiny(fit_unpenalized)</code></pre>
 </div>
