@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-This page contains a combination of traditional lecture materials (slides) and code demonstrating the relevant methods. The short course will proceed by working through both. We will use several recent packages in our examples; see the [About](./About.html) page for information about the package versions.
+This page contains a combination of traditional lecture materials (slides) and code demonstrating the relevant methods. The short course will proceed by working through both. We will use several recent packages in our examples; see the [about](about.html) page for information about the package versions.
 
 ```{r setup}
 library(tidyverse)
@@ -25,7 +25,7 @@ library(refund.shiny)
 theme_set(theme_bw() + theme(legend.position = "bottom"))
 ```
 
-In this section we'll use the [HeadStart data](./Data.html) to motivate the function-on-scalar regression model. Our main outcome of interest is the observed physical activity profile, with predictors including age, sex, and season. This material draws heavily from [Goldsmith et al](http://jeffgoldsmith.com/Downloads/HeadStart.pdf) (2016).
+In this section we'll use the [HeadStart data](shortcourse_data.html) to motivate the function-on-scalar regression model. Our main outcome of interest is the observed physical activity profile, with predictors including age, sex, and season. This material draws heavily from [Goldsmith et al](http://jeffgoldsmith.com/resources/HeadStart.pdf) (2016).
 
 
 ## Function-on-scalar regression

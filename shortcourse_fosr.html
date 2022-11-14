@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 
 <head>
 
 <meta charset="utf-8" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
@@ -14,12 +13,22 @@
 
 <title>Function-on-Scalar Regression</title>
 
-<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<script src="site_libs/header-attrs-2.16/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
 <script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
 <link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
 <script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
@@ -30,12 +39,16 @@
 <link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
 <link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
 
-<style type="text/css">code{white-space: pre;}</style>
 <style type="text/css">
-  pre:not([class]) {
-    background-color: white;
-  }
-</style>
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
 <script type="text/javascript">
 if (window.hljs) {
   hljs.configure({languages: []});
@@ -48,32 +61,8 @@ if (window.hljs) {
 
 
 
-<style type="text/css">
-h1 {
-  font-size: 34px;
-}
-h1.title {
-  font-size: 38px;
-}
-h2 {
-  font-size: 30px;
-}
-h3 {
-  font-size: 24px;
-}
-h4 {
-  font-size: 18px;
-}
-h5 {
-  font-size: 16px;
-}
-h6 {
-  font-size: 12px;
-}
-.table th:not([align]) {
-  text-align: left;
-}
-</style>
+
+
 
 
 
@@ -83,10 +72,6 @@ h6 {
   max-width: 940px;
   margin-left: auto;
   margin-right: auto;
-}
-code {
-  color: inherit;
-  background-color: rgba(0, 0, 0, 0.04);
 }
 img {
   max-width:100%;
@@ -103,40 +88,16 @@ button.code-folding-btn:focus {
 summary {
   display: list-item;
 }
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
 </style>
 
 
 <style type="text/css">
-/* padding for bootstrap navbar */
-body {
-  padding-top: 60px;
-  padding-bottom: 40px;
-}
-/* offset scroll position for anchor links (for fixed navbar)  */
-.section h1 {
-  padding-top: 65px;
-  margin-top: -65px;
-}
-.section h2 {
-  padding-top: 65px;
-  margin-top: -65px;
-}
-.section h3 {
-  padding-top: 65px;
-  margin-top: -65px;
-}
-.section h4 {
-  padding-top: 65px;
-  margin-top: -65px;
-}
-.section h5 {
-  padding-top: 65px;
-  margin-top: -65px;
-}
-.section h6 {
-  padding-top: 65px;
-  margin-top: -65px;
-}
 .dropdown-submenu {
   position: relative;
 }
@@ -164,7 +125,7 @@ body {
   margin-right: -10px;
 }
 .dropdown-submenu:hover>a:after {
-  border-left-color: #ffffff;
+  border-left-color: #adb5bd;
 }
 .dropdown-submenu.pull-left {
   float: none;
@@ -176,7 +137,7 @@ body {
 }
 </style>
 
-<script>
+<script type="text/javascript">
 // manage active state of menu based on current page
 $(document).ready(function () {
   // active menu anchor
@@ -186,11 +147,28 @@ $(document).ready(function () {
     href = "index.html";
   var menuAnchor = $('a[href="' + href + '"]');
 
-  // mark it active
-  menuAnchor.parent().addClass('active');
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
 
-  // if it's got a parent navbar menu mark it active as well
-  menuAnchor.closest('li.dropdown').addClass('active');
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
 });
 </script>
 
@@ -202,7 +180,6 @@ $(document).ready(function () {
   max-height: 500px;
   min-height: 44px;
   overflow-y: auto;
-  background: white;
   border: 1px solid #ddd;
   border-radius: 4px;
 }
@@ -238,6 +215,7 @@ $(document).ready(function () {
   border: none;
   display: inline-block;
   border-radius: 4px;
+  background-color: transparent;
 }
 
 .tabset-dropdown > .nav-tabs.nav-tabs-open > li {
@@ -269,6 +247,12 @@ $(document).ready(function () {
 }
 }
 
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
 
 .toc-content {
   padding-left: 30px;
@@ -324,7 +308,7 @@ div.tocify {
 
 
 <!-- setup 3col/9col grid for toc_float and main content  -->
-<div class="row-fluid">
+<div class="row">
 <div class="col-xs-12 col-sm-4 col-md-3">
 <div id="TOC" class="tocify">
 </div>
@@ -338,7 +322,7 @@ div.tocify {
 <div class="navbar navbar-default  navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
@@ -351,7 +335,7 @@ div.tocify {
   <a href="index.html">Home</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Short Course
      
     <span class="caret"></span>
@@ -390,11 +374,11 @@ div.tocify {
   </div><!--/.container -->
 </div><!--/.navbar -->
 
-<div class="fluid-row" id="header">
+<div id="header">
 
-<div class="btn-group pull-right">
-<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
-<ul class="dropdown-menu" style="min-width: 50px;">
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
 <li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
 <li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
 </ul>
@@ -407,33 +391,49 @@ div.tocify {
 </div>
 
 
-<p>This page contains a combination of traditional lecture materials (slides) and code demonstrating the relevant methods. The short course will proceed by working through both. We will use several recent packages in our examples; see the <a href="./About.html">About</a> page for information about the package versions.</p>
+<p>This page contains a combination of traditional lecture materials
+(slides) and code demonstrating the relevant methods. The short course
+will proceed by working through both. We will use several recent
+packages in our examples; see the <a href="about.html">about</a> page
+for information about the package versions.</p>
 <pre class="r"><code>library(tidyverse)
-## ── Attaching packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──
-## ✔ ggplot2 3.2.1     ✔ purrr   0.3.3
-## ✔ tibble  2.1.3     ✔ dplyr   0.8.3
-## ✔ tidyr   1.0.0     ✔ stringr 1.4.0
-## ✔ readr   1.3.1     ✔ forcats 0.4.0
-## ── Conflicts ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──
+## ✔ ggplot2 3.3.6      ✔ purrr   0.3.4 
+## ✔ tibble  3.1.8      ✔ dplyr   1.0.10
+## ✔ tidyr   1.2.1      ✔ stringr 1.4.1 
+## ✔ readr   2.1.2      ✔ forcats 0.5.2 
+## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
 ## ✖ dplyr::filter() masks stats::filter()
 ## ✖ dplyr::lag()    masks stats::lag()
 library(refund)
 library(refund.shiny)
-## This version of Shiny is designed to work with &#39;htmlwidgets&#39; &gt;= 1.5.
-##     Please upgrade via install.packages(&#39;htmlwidgets&#39;).
 
 theme_set(theme_bw() + theme(legend.position = &quot;bottom&quot;))</code></pre>
-<p>In this section we’ll use the <a href="./Data.html">HeadStart data</a> to motivate the function-on-scalar regression model. Our main outcome of interest is the observed physical activity profile, with predictors including age, sex, and season. This material draws heavily from <a href="http://jeffgoldsmith.com/Downloads/HeadStart.pdf">Goldsmith et al</a> (2016).</p>
+<p>In this section we’ll use the <a
+href="shortcourse_data.html">HeadStart data</a> to motivate the
+function-on-scalar regression model. Our main outcome of interest is the
+observed physical activity profile, with predictors including age, sex,
+and season. This material draws heavily from <a
+href="http://jeffgoldsmith.com/resources/HeadStart.pdf">Goldsmith et
+al</a> (2016).</p>
 <div id="function-on-scalar-regression" class="section level2">
 <h2>Function-on-scalar regression</h2>
 <script async class="speakerdeck-embed" data-id="337ceb9014d244a1a8b13282f00bae81" data-ratio="1.77777777777778" src="//speakerdeck.com/assets/embed.js"></script>
 <div style="margin-bottom:5px">
-<strong> <a href="https://speakerdeck.com/jeffgoldsmith/icampam-notation" title="ICAMPAM Short Course: FoSR" target="_blank">ICAMPAM Short Course: FoSR</a> </strong> from <strong><a href="https://speakerdeck.com/jeffgoldsmith" target="_blank">Jeff Goldsmith</a></strong>.
+<strong>
+<a href="https://speakerdeck.com/jeffgoldsmith/icampam-notation" title="ICAMPAM Short Course: FoSR" target="_blank">ICAMPAM
+Short Course: FoSR</a> </strong> from
+<strong><a href="https://speakerdeck.com/jeffgoldsmith" target="_blank">Jeff
+Goldsmith</a></strong>.
 </div>
 </div>
 <div id="practical-example" class="section level2">
 <h2>Practical example</h2>
-<p>One use of the rainbow plot is to get a quick sense for whether functional responses are related to covariates. Below we plot activity curves according to the season in which they were observed. Because the data are noisy enough that trends are not immediately apparent, we also include smooth means for both seasons.</p>
+<p>One use of the rainbow plot is to get a quick sense for whether
+functional responses are related to covariates. Below we plot activity
+curves according to the season in which they were observed. Because the
+data are noisy enough that trends are not immediately apparent, we also
+include smooth means for both seasons.</p>
 <pre class="r"><code>load(&quot;./DataCode/HeadStart.RDA&quot;)
 
 as_refundObj(accel) %&gt;% 
@@ -443,7 +443,8 @@ as_refundObj(accel) %&gt;%
 ## Joining, by = &quot;id&quot;
 ## `geom_smooth()` using method = &#39;gam&#39; and formula &#39;y ~ s(x, bs = &quot;cs&quot;)&#39;</code></pre>
 <p><img src="shortcourse_fosr_files/figure-html/headstart_explore-1.png" width="768" /></p>
-<p>Based on the above, we fit the FoSR equivalent of a simple linear regression to these data.</p>
+<p>Based on the above, we fit the FoSR equivalent of a simple linear
+regression to these data.</p>
 <pre class="r"><code>temp_df = covariate_data
 temp_df$accel = accel
 
@@ -457,9 +458,13 @@ fosr_slr = bayes_fosr(accel ~ season, data = temp_df,
 as_refundObj(fosr_slr$beta.hat) %&gt;% 
     ggplot(aes(x = index, y = value)) + facet_grid(~id) + geom_path()</code></pre>
 <p><img src="shortcourse_fosr_files/figure-html/headstart_fosr_slr-1.png" width="768" /></p>
-<p>The <code>refund.shiny</code> package has helpful tools for visualizing the results of a function-on-scalar regression analysis; these can be helpful for understanding the results.</p>
+<p>The <code>refund.shiny</code> package has helpful tools for
+visualizing the results of a function-on-scalar regression analysis;
+these can be helpful for understanding the results.</p>
 <pre class="r"><code>plot_shiny(fosr_slr)</code></pre>
-<p>To examine more complex associations, and to account for possible confounding, we use the FoSR equivalent of a multiple linear regression.</p>
+<p>To examine more complex associations, and to account for possible
+confounding, we use the FoSR equivalent of a multiple linear
+regression.</p>
 <pre class="r"><code>fosr_mlr = bayes_fosr(accel ~ season + sex + BMIZ + TV + 
                       videogames + mom_work + asthma + child_age + 
                       mom_age + educ_mom + num_rooms + mom_born_US + tricep + 
@@ -473,9 +478,11 @@ as_refundObj(fosr_slr$beta.hat) %&gt;%
 as_refundObj(fosr_mlr$beta.hat[-1,]) %&gt;% 
     ggplot(aes(x = index, y = value, group = id)) + geom_path(alpha = .5)</code></pre>
 <p><img src="shortcourse_fosr_files/figure-html/headstart_fosr_mlr-1.png" width="768" /></p>
-<p>Again, the results of this model can be easier to understand using interactive graphics.</p>
+<p>Again, the results of this model can be easier to understand using
+interactive graphics.</p>
 <pre class="r"><code>plot_shiny(fosr_mlr)</code></pre>
-<p>For these same data, we can compute average activity counts for each subject and fit a usual MLR.</p>
+<p>For these same data, we can compute average activity counts for each
+subject and fit a usual MLR.</p>
 <pre class="r"><code>temp_df = covariate_data
 temp_df$mean_accel = apply(accel, 1, mean)
 
@@ -612,7 +619,8 @@ summary(mlr) %&gt;%
 </tr>
 </tbody>
 </table>
-<p>The table below compares the results of the MLR to the integrated coefficients in the FoSR.</p>
+<p>The table below compares the results of the MLR to the integrated
+coefficients in the FoSR.</p>
 <pre class="r"><code>table.compare = data.frame(beta.mlr = coef(mlr),
                            beta.fosr = apply(fosr_mlr$beta.hat, 1, mean))
 
@@ -620,89 +628,89 @@ knitr::kable(table.compare, digits = 2)</code></pre>
 <table>
 <thead>
 <tr class="header">
-<th></th>
+<th align="left"></th>
 <th align="right">beta.mlr</th>
 <th align="right">beta.fosr</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>(Intercept)</td>
+<td align="left">(Intercept)</td>
 <td align="right">585.54</td>
 <td align="right">541.60</td>
 </tr>
 <tr class="even">
-<td>seasoncool</td>
+<td align="left">seasoncool</td>
 <td align="right">-60.17</td>
 <td align="right">-67.39</td>
 </tr>
 <tr class="odd">
-<td>sexmale</td>
+<td align="left">sexmale</td>
 <td align="right">-9.38</td>
 <td align="right">-14.54</td>
 </tr>
 <tr class="even">
-<td>BMIZ</td>
+<td align="left">BMIZ</td>
 <td align="right">-0.10</td>
 <td align="right">-0.17</td>
 </tr>
 <tr class="odd">
-<td>TV&gt;=2h</td>
+<td align="left">TV&gt;=2h</td>
 <td align="right">-16.71</td>
 <td align="right">-18.08</td>
 </tr>
 <tr class="even">
-<td>videogames&gt;=1h</td>
+<td align="left">videogames&gt;=1h</td>
 <td align="right">-7.47</td>
 <td align="right">-0.44</td>
 </tr>
 <tr class="odd">
-<td>mom_workyes</td>
+<td align="left">mom_workyes</td>
 <td align="right">-4.44</td>
 <td align="right">-7.57</td>
 </tr>
 <tr class="even">
-<td>asthmayes</td>
+<td align="left">asthmayes</td>
 <td align="right">-2.99</td>
 <td align="right">2.81</td>
 </tr>
 <tr class="odd">
-<td>child_age</td>
+<td align="left">child_age</td>
 <td align="right">-0.91</td>
 <td align="right">-0.59</td>
 </tr>
 <tr class="even">
-<td>mom_age</td>
+<td align="left">mom_age</td>
 <td align="right">-0.33</td>
 <td align="right">0.19</td>
 </tr>
 <tr class="odd">
-<td>educ_mom</td>
+<td align="left">educ_mom</td>
 <td align="right">-0.84</td>
 <td align="right">-0.97</td>
 </tr>
 <tr class="even">
-<td>num_rooms</td>
+<td align="left">num_rooms</td>
 <td align="right">5.17</td>
 <td align="right">3.70</td>
 </tr>
 <tr class="odd">
-<td>mom_born_USyes</td>
+<td align="left">mom_born_USyes</td>
 <td align="right">3.14</td>
 <td align="right">-0.13</td>
 </tr>
 <tr class="even">
-<td>tricep</td>
+<td align="left">tricep</td>
 <td align="right">0.83</td>
 <td align="right">-0.10</td>
 </tr>
 <tr class="odd">
-<td>subscap</td>
+<td align="left">subscap</td>
 <td align="right">0.01</td>
 <td align="right">-0.82</td>
 </tr>
 <tr class="even">
-<td>skinfold</td>
+<td align="left">skinfold</td>
 <td align="right">-0.66</td>
 <td align="right">-0.07</td>
 </tr>
@@ -721,7 +729,7 @@ knitr::kable(table.compare, digits = 2)</code></pre>
 
 // add bootstrap table styles to pandoc tables
 function bootstrapStylePandocTables() {
-  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
 }
 $(document).ready(function () {
   bootstrapStylePandocTables();
@@ -739,7 +747,7 @@ $(document).ready(function () {
 
 $(document).ready(function () {
   $('.tabset-dropdown > .nav-tabs > li').click(function () {
-    $(this).parent().toggleClass('nav-tabs-open')
+    $(this).parent().toggleClass('nav-tabs-open');
   });
 });
 </script>
@@ -754,6 +762,9 @@ $(document).ready(function () {
 <script>
 $(document).ready(function ()  {
 
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
     // move toc-ignore selectors from section div to header
     $('div.section.toc-ignore')
         .removeClass('toc-ignore')
@@ -765,7 +776,7 @@ $(document).ready(function ()  {
       theme: "bootstrap3",
       context: '.toc-content',
       hashGenerator: function (text) {
-        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
       },
       ignoreSelector: ".toc-ignore",
       scrollTo: 0
